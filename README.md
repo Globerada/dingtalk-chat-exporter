@@ -36,7 +36,7 @@ Compatibility is feature-detected. The tool will stop instead of guessing when t
 Open PowerShell and run:
 
 ```powershell
-git clone https://github.com/YOUR-USERNAME/dingtalk-chat-exporter.git
+git clone https://github.com/Globerada/dingtalk-chat-exporter.git
 cd dingtalk-chat-exporter
 python -m pip install -r requirements.txt
 ```
@@ -57,6 +57,12 @@ python dingtalk_export.py
 5. Select the conversation you want to export.
 6. The exporter writes a new folder under `exports/` containing all four output formats.
 
+### Windows terminal and Unicode
+
+The CLI configures standard output and error as UTF-8 when Python allows it, which avoids common `cp1252`/`charmap` failures in PowerShell, Command Prompt, and Git Bash. The conversation list also uses an ASCII `-` separator for compatibility with older console hosts.
+
+If Chinese or other CJK characters can be copied correctly but appear as squares/boxes on screen, the data is intact and the problem is usually the terminal font, not the exporter. Windows Terminal with a CJK-capable font is recommended. Depending on what is installed on your system, examples include Microsoft YaHei UI, Noto Sans Mono CJK SC, and Sarasa Mono SC. See [docs/troubleshooting.md](docs/troubleshooting.md) for diagnostic commands and environment-variable fallbacks.
+
 ## Example session
 
 ```text
@@ -65,9 +71,9 @@ DingTalk Chat Exporter
 [OK] Compatible DingTalk account database found
 [OK] Database reconstructed (42 committed WAL frames applied)
 Conversations found: 3
-    1. Project Team — 1,247 messages
-    2. Alice — 582 messages
-    3. Bob — 391 messages
+    1. Project Team - 1,247 messages
+    2. Alice - 582 messages
+    3. Bob - 391 messages
 Select conversation: 1
 
 Export complete:
@@ -139,6 +145,8 @@ Common issues include:
 - The decrypted first page does not contain a valid SQLite header.
 - The WAL page size does not match the validated 4096-byte format.
 - `PRAGMA quick_check` reports an integrity problem.
+- Chinese/CJK characters appear as boxes because the terminal font lacks the required glyphs.
+- A shell forces a legacy encoding such as `cp1252` and raises `UnicodeEncodeError`.
 
 ## Privacy and legal disclaimer
 
