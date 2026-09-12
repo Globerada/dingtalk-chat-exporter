@@ -1,0 +1,12 @@
+.worktrees/
+__pycache__/
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+exports/
+*.decrypted.db
+*.reconstructed.db
+*.sqlite.tmp
