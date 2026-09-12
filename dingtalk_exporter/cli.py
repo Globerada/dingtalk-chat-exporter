@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+import sys
 import tempfile
 from pathlib import Path
 from typing import Callable
@@ -16,6 +17,18 @@ from .profiles import resolve_profile_names
 
 InputFn = Callable[[str], str]
 OutputFn = Callable[[str], None]
+
+
+def configure_console_encoding(streams=None) -> None:
+    targets = (sys.stdout, sys.stderr) if streams is None else streams
+    for stream in targets:
+        reconfigure = getattr(stream, "reconfigure", None)
+        if not callable(reconfigure):
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (OSError, ValueError):
+            pass
 
 
 def choose_index(label: str, count: int, input_fn: InputFn = input, output_fn: OutputFn = print) -> int:
@@ -37,6 +50,9 @@ def run(
     appdata_root: Path | None = None,
     output_root: Path = Path("exports"),
 ) -> int:
+    if output_fn is print:
+        configure_console_encoding()
+
     output_fn("DingTalk Chat Exporter")
     output_fn("")
     try:
@@ -75,7 +91,7 @@ def run(
 
                 output_fn(f"Conversations found: {len(conversations)}")
                 for index, conversation in enumerate(conversations, 1):
-                    output_fn(f"  {index:>3}. {conversation.display_name} — {conversation.message_count:,} messages")
+                    output_fn(f"  {index:>3}. {conversation.display_name} - {conversation.message_count:,} messages")
                 selected = conversations[choose_index("Select conversation", len(conversations), input_fn, output_fn)]
                 messages = load_messages(con, selected.cid, names)
             finally:
