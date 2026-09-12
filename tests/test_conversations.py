@@ -23,6 +23,16 @@ def test_numeric_one_to_one_title_uses_resolved_participant_name():
     ) == "Jillian"
 
 
+def test_numeric_group_title_is_preserved():
+    assert resolve_conversation_name(
+        cid="group-2026",
+        explicit_title="2026",
+        participant_ids=[1, 2, 3],
+        current_uid=1,
+        names={1: "Me", 2: "Alice", 3: "Bob"},
+    ) == "2026"
+
+
 def test_explicit_group_title_wins():
     assert resolve_conversation_name(
         cid="69169246850",
