@@ -42,9 +42,6 @@ def resolve_conversation_name(
     current_uid: int,
     names: dict[int, str],
 ) -> str:
-    if explicit_title and explicit_title.strip():
-        return explicit_title.strip()
-
     if ":" in cid:
         encoded: list[int] = []
         for part in cid.split(":"):
@@ -57,6 +54,13 @@ def resolve_conversation_name(
             participant_ids = sorted(set(participant_ids) | set(encoded))
 
     others = [uid for uid in participant_ids if uid != current_uid]
+
+    if explicit_title and explicit_title.strip():
+        title = explicit_title.strip()
+        is_numeric_one_to_one_placeholder = len(others) == 1 and title == str(others[0])
+        if not is_numeric_one_to_one_placeholder:
+            return title
+
     resolved_others = [names[uid] for uid in others if uid in names and names[uid]]
     if len(others) == 1 and resolved_others:
         return resolved_others[0]
