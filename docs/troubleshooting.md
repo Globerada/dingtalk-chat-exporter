@@ -42,6 +42,54 @@ Name resolution is best-effort. The local database may not contain an alias/prof
 
 DingTalk uses multiple content types. v1 normalizes ordinary text and common Markdown/attachment representations while preserving unknown raw content instead of silently discarding it. JSON is the best format for investigating an unusual message type.
 
+## Chinese/CJK characters appear as squares or empty boxes
+
+If you can copy the affected text from the terminal and paste it somewhere else with the Chinese/CJK characters intact, the exporter has produced the correct Unicode text. The terminal font simply does not contain glyphs for those characters.
+
+Use Windows Terminal and choose a CJK-capable font under **Settings > Profiles > PowerShell (or Command Prompt) > Appearance > Font face**. Depending on what is installed on your system, suitable examples include:
+
+- Microsoft YaHei UI
+- Noto Sans Mono CJK SC
+- Sarasa Mono SC
+
+The classic Windows console host and some Git Bash/MINGW configurations may display missing-glyph boxes even when the underlying text is correct.
+
+You can test both Python's output encoding and the terminal font with:
+
+```powershell
+python -c "import sys; print(sys.stdout.encoding); print('中文测试 - 帕威尔 - Paweł')"
+```
+
+If `utf-8` is reported but the Chinese text still appears as boxes, change the terminal font.
+
+## `UnicodeEncodeError: 'charmap' codec can't encode characters`
+
+The CLI attempts to reconfigure `stdout` and `stderr` as UTF-8 automatically. If a particular shell or launcher still forces a legacy encoding such as `cp1252`, try one of these temporary fallbacks.
+
+PowerShell:
+
+```powershell
+$env:PYTHONUTF8="1"
+python dingtalk_export.py
+```
+
+or:
+
+```powershell
+$env:PYTHONIOENCODING="utf-8"
+python dingtalk_export.py
+```
+
+Command Prompt:
+
+```cmd
+chcp 65001
+set PYTHONUTF8=1
+python dingtalk_export.py
+```
+
+Git Bash/MINGW normally expects UTF-8 bytes, so `PYTHONUTF8=1` or `PYTHONIOENCODING=utf-8` is the most useful fallback if Python reports a legacy Windows code page.
+
 ## PowerShell cannot find `python`
 
 Install Python 3.10+ and select the installer option that adds Python to PATH, then reopen PowerShell. You can also try the Windows Python launcher:
